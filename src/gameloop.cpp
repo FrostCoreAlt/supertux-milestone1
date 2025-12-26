@@ -905,11 +905,11 @@ GameSession::drawstatus()
     }
 
   if(!time_left.check()) {
-    white_text->draw("TIME'S UP", 224/xdiv, 0, 1);
+    white_text->draw("TIME'S UP", screen->w-416/xdiv, 0, 1);
   } else if (time_left.get_left() > TIME_WARNING || (global_frame_counter % 10) < 5) {
     sprintf(str, "%d", time_left.get_left() / 1000 );
-    white_text->draw("TIME", 224/xdiv, 0, 1);
-    gold_text->draw(str, 304/xdiv, 0, 1);
+    white_text->draw("TIME", screen->w-416/xdiv, 0, 1);
+    gold_text->draw(str, screen->w-336/xdiv, 0, 1);
   }
 
   sprintf(str, "%d", player_status.distros);
