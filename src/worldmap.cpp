@@ -985,25 +985,25 @@ WorldMap::draw_status()
   gold_text->draw(str, (int)(96)/xdiv, 0);
 
   sprintf(str, "%d", player_status.distros);
-  white_text->draw_align("COINS", (int)(320-64)/xdiv, 0,  A_LEFT, A_TOP);
-  gold_text->draw_align(str, (int)(320+64)/xdiv, 0, A_RIGHT, A_TOP);
+  white_text->draw_align("COINS", (int)((screen->w/2)-64)/xdiv, 0,  A_LEFT, A_TOP);
+  gold_text->draw_align(str, (int)((screen->w/2)+64)/xdiv, 0, A_RIGHT, A_TOP);
 
-  white_text->draw("LIVES", (int)(480)/xdiv, 0);
+  white_text->draw("LIVES", (int)(screen->w-160)/xdiv, 0);
   if (player_status.lives >= 5)
     {
       sprintf(str, "%dx", player_status.lives);
 #ifdef RES320X240
-      gold_text->draw_align(str, (int)(617)/xdiv-5, 0, A_RIGHT, A_TOP);
-      tux_life->draw((int)((565-12+(18*3))), 0);
+      gold_text->draw_align(str, (int)(screen->w-23)/xdiv-5, 0, A_RIGHT, A_TOP);
+      tux_life->draw((int)(((screen->w-75)-12+(18*3))), 0);
 #else
-      gold_text->draw_align(str, (int)(617), 0, A_RIGHT, A_TOP);
-      tux_life->draw((int)((565+(18*3))), 0);
+      gold_text->draw_align(str, (int)(screen->w-23), 0, A_RIGHT, A_TOP);
+      tux_life->draw((int)(((screen->w-75)+(18*3))), 0);
 #endif
     }
   else
     {
       for(int i= 0; i < player_status.lives; ++i)
-        tux_life->draw((565+(18/xdiv*i)),0);
+        tux_life->draw(((screen->w-75)+(18/xdiv*i)),0);
     }
 
   if (!tux->is_moving())
@@ -1018,7 +1018,7 @@ WorldMap::draw_status()
 #ifndef RES320X240
               white_text->draw_align(i->title.c_str(), screen->w/2, screen->h,  A_HMIDDLE, A_BOTTOM);
 #else
-              white_text->draw_align(i->title.c_str(), screen->w/2, 470,  A_HMIDDLE, A_BOTTOM);
+              white_text->draw_align(i->title.c_str(), screen->w/2, screen->h-10,  A_HMIDDLE, A_BOTTOM);
 #endif
                 }
 				  else if (i->teleport_dest_x != -1) {
