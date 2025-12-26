@@ -52,5 +52,7 @@ bool process_load_game_menu();
 void update_load_save_game_menu(Menu* pmenu);
 void parseargs(int argc, char * argv[]);
 
+int poll_event(SDL_Event& ev);
+
 #endif /*SUPERTUX_SETUP_H*/
 

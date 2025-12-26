@@ -20,16 +20,13 @@
 #ifndef SUPERTUX_PLAYER_H
 #define SUPERTUX_PLAYER_H
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
+#include "bitmask.h"
 #include "type.h"
 #include "timer.h"
 #include "texture.h"
 #include "collision.h"
-#ifndef NOSOUND
 #include "sound.h"
-#else
-#include "defines.h"
-#endif
 #include "physic.h"
 
 /* Times: */
@@ -63,6 +60,7 @@ public:
 };
 
 extern PlayerKeymap keymap;
+extern bool run_by_default;
 
 struct player_input_type
 {
@@ -138,7 +136,7 @@ public:
 
 public:
   void init();
-  int  key_event(SDLKey key, int state);
+  int  key_event(SDL_Keycode key, int state);
   void level_begin();
   void action(double frame_ratio);
   void handle_input();

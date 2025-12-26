@@ -50,6 +50,11 @@ JoystickKeymap::JoystickKeymap()
 JoystickKeymap joystick_keymap;
 
 SDL_Surface * screen;
+SDL_Window* window;
+SDL_Renderer* renderer;
+SDL_Texture* sdl_texture;
+SDL_GLContext glcontext;
+int glviewport_x, glviewport_y, glviewport_w, glviewport_h;
 Text* black_text;
 Text* gold_text;
 Text* silver_text;
@@ -62,7 +67,7 @@ Text* white_small_text;
 Text* white_big_text;
 
 MouseCursor * mouse_cursor;
-
+int  display_idx = 0;
 bool use_gl;
 bool use_joystick;
 bool use_fullscreen;

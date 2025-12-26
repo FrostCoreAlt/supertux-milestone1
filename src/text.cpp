@@ -24,9 +24,7 @@
 #include "defines.h"
 #include "screen.h"
 #include "text.h"
-#ifndef NOSOUND
-#include "sound.h"
-#endif
+#include "setup.h"
 
 Text::Text(const std::string& file, int kind_, int w_, int h_)
 {
@@ -58,7 +56,7 @@ Text::Text(const std::string& file, int kind_, int w_, int h_)
   chars = new Surface(file, USE_ALPHA);
 
   // Load shadow font.
-  conv = SDL_DisplayFormatAlpha(chars->impl->get_sdl_surface());
+  conv = SDL_ConvertSurfaceFormat(chars->impl->get_sdl_surface(), SDL_PIXELFORMAT_RGBA8888, 0);
   pixels = conv->w * conv->h;
   SDL_LockSurface(conv);
   for(i = 0; i < pixels; ++i)
@@ -67,7 +65,7 @@ Text::Text(const std::string& file, int kind_, int w_, int h_)
       *p = *p & conv->format->Amask;
     }
   SDL_UnlockSurface(conv);
-  SDL_SetAlpha(conv, SDL_SRCALPHA, 128);
+  SDL_SetSurfaceAlphaMod(conv, 128);
   shadow_chars = new Surface(conv, USE_ALPHA);
 
   SDL_FreeSurface(conv);
@@ -119,9 +117,6 @@ Text::draw_chars(Surface* pchars,const  char* text, int x, int y, int update)
           else if ( text[i] == '\n')
             {
               y += h + 2;
-#ifdef RES320X240
-	    y+=6;
-#endif
               j = 0;
             }
         }
@@ -135,9 +130,6 @@ Text::draw_chars(Surface* pchars,const  char* text, int x, int y, int update)
           else if ( text[i] == '\n')
             {
               y += h + 2;
-#ifdef RES320X240
-	    y+=6;
-#endif
               j = 0;
             }
         }
@@ -241,7 +233,7 @@ Text::erasecenteredtext(const  char * text, int y, Surface * ptexture, int updat
 
 void display_text_file(const std::string& file, const std::string& surface, float scroll_speed)
 {
-  Surface* sur = new Surface(datadir + surface, IGNORE_ALPHA);
+  Surface* sur = new Surface(surface, IGNORE_ALPHA);
   display_text_file(file, sur, scroll_speed);
   delete sur;
 }
@@ -260,23 +252,22 @@ void display_text_file(const std::string& file, Surface* surface, float scroll_s
   string_list_init(&names);
   sprintf(filename,"%s/%s", datadir.c_str(), file.c_str());
   if((fi = fopen(filename,"r")) != NULL)
-    {
-      while(fgets(temp, sizeof(temp), fi) != NULL)
-        {
-          temp[strlen(temp)-1]='\0';
-          string_list_add_item(&names,temp);
-        }
-      fclose(fi);
-    }
+      {
+          while(fgets(temp, sizeof(temp), fi) != NULL)
+            {
+              temp[strlen(temp)-1]='\0';
+              string_list_add_item(&names,temp);
+            }
+          fclose(fi);
+      }
   else
     {
       string_list_add_item(&names,"File was not found!");
-      string_list_add_item(&names,filename);
+      string_list_add_item(&names,file.c_str());
       string_list_add_item(&names,"Shame on the guy, who");
       string_list_add_item(&names,"forgot to include it");
       string_list_add_item(&names,"in your SuperTux distribution.");
     }
-
 
   scroll = 0;
   speed = scroll_speed / 50;
@@ -284,14 +275,12 @@ void display_text_file(const std::string& file, Surface* surface, float scroll_s
 
   length = names.num_items;
 
-  SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-
   Uint32 lastticks = SDL_GetTicks();
   while(done == 0)
     {
       /* in case of input, exit */
       SDL_Event event;
-      while(SDL_PollEvent(&event))
+      while(poll_event(event))
         switch(event.type)
           {
           case SDL_KEYDOWN:
@@ -315,23 +304,6 @@ void display_text_file(const std::string& file, Surface* surface, float scroll_s
                 break;
               }
             break;
-#ifdef GP2X
-	  case SDL_JOYBUTTONDOWN:
-	    if ( event.jbutton.button == joystick_keymap.down_button ) {
-            	    speed += SPEED_INC;
-	    }
-	    if ( event.jbutton.button == joystick_keymap.up_button ) {
-            	    speed -= SPEED_INC;
-	    }	    
-	    if ( event.jbutton.button == joystick_keymap.b_button ) {
-            	    done = 1;
-	    }	    
-	    if ( event.jbutton.button == joystick_keymap.a_button ) {
-            	    scroll += SCROLL;
-	    }
-	  break;
-#endif
-
           case SDL_QUIT:
             done = 1;
             break;
@@ -356,36 +328,21 @@ void display_text_file(const std::string& file, Surface* surface, float scroll_s
             white_small_text->drawf(names.item[i]+1, 0, screen->h+y-int(scroll),
                 A_HMIDDLE, A_TOP, 1);
             y += white_small_text->h+ITEMS_SPACE;
-#ifdef RES320X240
-	    y += 6;
-#endif
             break;
           case '	':
             white_text->drawf(names.item[i]+1, 0, screen->h+y-int(scroll),
                 A_HMIDDLE, A_TOP, 1);
             y += white_text->h+ITEMS_SPACE;
-#ifdef RES320X240
-	    y += 6;
-#endif
             break;
           case '-':
-#ifdef RES320X240
-            white_text->drawf(names.item[i]+1, 0, screen->h+y-int(scroll), A_HMIDDLE, A_TOP, 3);
-#else
-            white_big_text->drawf(names.item[i]+1, 0, screen->h+y-int(scroll), A_HMIDDLE, A_TOP, 3);
-#endif
+            white_big_text->drawf(names.item[i]+1, 0, screen->h+y-int(scroll),
+                A_HMIDDLE, A_TOP, 3);
             y += white_big_text->h+ITEMS_SPACE;
-#ifdef RES320X240
-	    y += 6;
-#endif
             break;
           default:
             blue_text->drawf(names.item[i], 0, screen->h+y-int(scroll),
                 A_HMIDDLE, A_TOP, 1);
             y += blue_text->h+ITEMS_SPACE;
-#ifdef RES320X240
-	    y += 6;
-#endif
             break;
           }
         }
@@ -401,19 +358,10 @@ void display_text_file(const std::string& file, Surface* surface, float scroll_s
       if(scroll < 0)
         scroll = 0;
 
-#ifndef GP2X
-    SDL_Delay(10);
-#else
-    SDL_Delay(2);
-#ifndef NOSOUND
-    updateSound();
-#endif
-#endif
-
+      SDL_Delay(10);
     }
   string_list_free(&names);
 
-  SDL_EnableKeyRepeat(0, 0);    // disables key repeating
   Menu::set_current(main_menu);
 }
 
