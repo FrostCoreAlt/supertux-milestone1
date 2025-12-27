@@ -168,6 +168,8 @@ BadGuy::BadGuy(float x, float y, BadGuyKind kind_, bool stay_on_platform_)
     set_sprite(img_mrbomb_ticking_left, img_mrbomb_ticking_right);
     // hack so that the bomb doesn't hurt until it expldes...
     dying = DYING_SQUISHED;
+  } else if (kind == BAD_IBOMB) {
+    set_sprite(img_mrbomb_explosion, img_mrbomb_explosion); 
   } else if(kind == BAD_FLAME) {
     base.ym = 0; // we misuse base.ym as angle for the flame
     physic.enable_gravity(false);
@@ -494,6 +496,47 @@ BadGuy::action_bomb(double frame_ratio)
 }
 
 void
+BadGuy::action_ibomb(double frame_ratio)
+{
+  static const int EXPLODETIME = 1000;
+
+  fall();
+
+  if (mode != BOMB_EXPLODE) {
+    mode = BOMB_EXPLODE;
+    set_sprite(img_mrbomb_explosion, img_mrbomb_explosion);
+    dying = DYING_NOT;
+    timer.start(EXPLODETIME);
+
+    /* play explosion sound */
+    if (base.x < scroll_x + screen->w / 2 - 10) {
+#ifndef NOSOUND
+#ifndef GP2X
+      play_sound(sounds[SND_EXPLODE], SOUND_LEFT_SPEAKER);
+    }
+    else if (base.x > scroll_x + screen->w / 2 + 10) {
+      play_sound(sounds[SND_EXPLODE], SOUND_RIGHT_SPEAKER);
+    }
+    else {
+      play_sound(sounds[SND_EXPLODE], SOUND_CENTER_SPEAKER);
+    }
+#else
+    play_chunk(SND_EXPLODE);
+#endif
+#endif
+  }
+  else if (!timer.check()) {
+    remove_me();
+    return;
+  }
+
+  // move
+  physic.apply(frame_ratio, base.x, base.y);
+  collision_swept_object_map(&old_base, &base);
+}
+
+
+void
 BadGuy::action_stalactite(double frame_ratio)
 {
   Player& tux = *World::current()->get_tux();
@@ -735,7 +778,9 @@ BadGuy::action(double frame_ratio)
     case BAD_BOMB:
       action_bomb(frame_ratio);
       break;
-
+    case BAD_IBOMB:
+      action_ibomb(frame_ratio);
+      break;
     case BAD_STALACTITE:
       action_stalactite(frame_ratio);
       break;
@@ -962,6 +1007,12 @@ BadGuy::squish(Player* player)
 void
 BadGuy::kill_me(int score)
 {
+  if (kind == BAD_MRBOMB) {
+    World::current()->add_bad_guy(base.x, base.y, BAD_IBOMB); 
+    mode = BOMB_EXPLODE;
+    remove_me();
+    return;
+  }
   if(kind == BAD_BOMB || kind == BAD_STALACTITE || kind == BAD_FLAME)
     return;
 
@@ -1037,7 +1088,7 @@ BadGuy::collision(void *p_c_object, int c_object, CollisionType type)
         }
 
       /* Kill badguys that run into exploding bomb */
-      else if (kind == BAD_BOMB && dying == DYING_NOT)
+      else if (kind == BAD_BOMB || kind == BAD_IBOMB && dying == DYING_NOT)
       {
         if (pbad_c->kind == BAD_MRBOMB)
         {

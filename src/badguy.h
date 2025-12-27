@@ -45,6 +45,7 @@ enum BadGuyKind {
   BAD_FLYINGSNOWBALL,
   BAD_SPIKY,
   BAD_SNOWBALL,
+  BAD_IBOMB,
   NUM_BadGuyKinds
 };
 
@@ -131,6 +132,7 @@ private:
   void action_mriceblock(double frame_ratio);
   void action_jumpy(double frame_ratio); 
   void action_bomb(double frame_ratio);
+  void action_ibomb(double frame_ratio);
   void action_mrbomb(double frame_ratio);
   void action_stalactite(double frame_ratio);
   void action_flame(double frame_ratio);
