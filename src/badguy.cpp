@@ -1009,7 +1009,6 @@ BadGuy::kill_me(int score)
 {
   if (kind == BAD_MRBOMB) {
     World::current()->add_bad_guy(base.x, base.y, BAD_IBOMB); 
-    mode = BOMB_EXPLODE;
     remove_me();
     return;
   }
@@ -1044,7 +1043,9 @@ BadGuy::kill_me(int score)
 
 void BadGuy::explode(BadGuy *badguy)
 {
-World::current()->add_bad_guy(badguy->base.x, badguy->base.y, BAD_BOMB);
+if (kind != BAD_IBOMB) {
+    World::current()->add_bad_guy(badguy->base.x, badguy->base.y, BAD_BOMB);
+}
 badguy->remove_me();
 }
 
