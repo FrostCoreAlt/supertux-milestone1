@@ -316,8 +316,8 @@ Level::load(const std::string& filename)
         printf("Warning no time specified for level.\n");
       }
       
-      back_scrolling = false;
-      reader.read_bool("back_scrolling",  &back_scrolling);
+      back_scrolling = true;
+      //reader.read_bool("back_scrolling",  &back_scrolling);
 
       hor_autoscroll_speed = 0;
       reader.read_float("hor_autoscroll_speed",  &hor_autoscroll_speed);
