@@ -256,6 +256,7 @@ World::draw()
   /* Draw foreground: */
   for (y = 0; y < screen->h / 32; ++y)
     {
+      if (y >= 15) break;
       for (x = 0; x < screen->w / 32 + 1; ++x)
         {
           Tile::draw(32*x - fmodf(scroll_x, 32), y * 32,
