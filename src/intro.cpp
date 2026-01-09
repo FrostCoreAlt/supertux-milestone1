@@ -36,7 +36,6 @@
 void draw_intro()
 {
 if(debug_mode)
-  fade("/images/background/arctis2.jpg", 30, false);
-display_text_file("intro.txt", "/images/background/arctis2.jpg", SCROLL_SPEED_MESSAGE);
+  fade(datadir + "/images/background/arctis2.jpg", 30, false);
+display_text_file("intro.txt", datadir + "/images/background/arctis2.jpg", SCROLL_SPEED_MESSAGE);
 }
-
